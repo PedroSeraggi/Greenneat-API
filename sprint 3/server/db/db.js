@@ -20,6 +20,7 @@ const Estabelecimento = sequelize.define('Estabelecimento', {
   possuiParceiros: Sequelize.STRING,
   senha: Sequelize.STRING,
   credito:Sequelize.FLOAT,
+  compras:Sequelize.FLOAT,
   token: {
     type: Sequelize.STRING,
     allowNull: true
@@ -39,6 +40,7 @@ const Parceiro = sequelize.define('Parceiro', {
   horariosFuncionamento: Sequelize.STRING,
   credito:Sequelize.FLOAT,
   senha: Sequelize.STRING,
+  compras:Sequelize.FLOAT,
   token: {
     type: Sequelize.STRING,
     allowNull: true
@@ -47,6 +49,7 @@ const Parceiro = sequelize.define('Parceiro', {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  
 });
 
 const Administrador = sequelize.define("Administrador", {

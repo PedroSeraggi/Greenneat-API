@@ -504,42 +504,42 @@ app.post("/loginParceiro", async (req, res)  => {
 
   app.post("/CompraParceiro", async (req, res) => {
     try {
-        const { produtos, total, EstabelecimentoId, tipo } = req.body;
+      const { produtos, total, EstabelecimentoId, tipo } = req.body;
   
-        await sequelize.transaction(async (t) => {
-            
-            const parceiro = await Parceiro.findOne({ where: { id: EstabelecimentoId } });
-        
+      await sequelize.transaction(async (t) => {
+        const parceiro = await Parceiro.findOne({ where: { id: EstabelecimentoId } });
   
-            if (!parceiro) {
-                return res.status(404).json({ error: 'Parceiro não encontrado' });
-            }
+        if (!parceiro) {
+          return res.status(404).json({ error: 'Parceiro não encontrado' });
+        }
   
-            if (total > parceiro.credito) {
-                return res.status(400).json({ error: 'Saldo insuficiente' });
-            }
+        if (total > parceiro.credito) {
+          return res.status(400).json({ error: 'Saldo insuficiente' });
+        }
   
-            parceiro.credito -= total;
-            await parceiro.save({ transaction: t });
+        parceiro.credito -= total;
+        parceiro.compras += 1; // Incrementa o número de compras
+        await parceiro.save({ transaction: t });
   
-            // Crie a nova compra no banco de dados
-            const novaCompra = await Compra.create(
-                {
-                    produtos,
-                    total,
-                    EstabelecimentoId,
-                    tipo,
-                },
-                { transaction: t }
-            );
+        // Crie a nova compra no banco de dados
+        const novaCompra = await Compra.create(
+          {
+            produtos,
+            total,
+            EstabelecimentoId,
+            tipo,
+          },
+          { transaction: t }
+        );
   
-            res.status(200).json(novaCompra);
-        });
+        res.status(200).json(novaCompra);
+      });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
+      console.log(error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
     }
   });
+  
   
 
 
@@ -560,6 +560,7 @@ app.post("/loginParceiro", async (req, res)  => {
             }
 
             estabelecimento.credito -= total;
+            estabelecimento.compras += 1; // Incrementa o número de compras
             await estabelecimento.save({ transaction: t });
 
             // Crie a nova compra no banco de dados
@@ -573,7 +574,6 @@ app.post("/loginParceiro", async (req, res)  => {
                 { transaction: t }
             );
 
-
             res.status(200).json(novaCompra);
         });
     } catch (error) {
@@ -581,7 +581,6 @@ app.post("/loginParceiro", async (req, res)  => {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
-
 
 
 
@@ -597,6 +596,28 @@ app.post("/loginParceiro", async (req, res)  => {
     }
   });
 
+
+  app.get("/parceirosGrafico", async(req, res) => {
+    try {
+      const parceiros = await Parceiro.findAll({
+      });
+  
+      const parceirosCompras = await Promise.all(parceiros.map(async (parceiro) => {
+        const totalCompras = await Compra.count({ where: { EstabelecimentoId: parceiro.id } });
+        return {
+          ...parceiro.toJSON(),
+          compras: totalCompras,
+        };
+      }));
+  
+      return res.status(200).json(parceirosCompras);
+    } catch (error) {
+      console.error('Erro ao obter dados dos parceiros:', error);
+      return res.status(500).json({ message: "Falha ao listar parceiros" });
+    }
+  });
+  
+  
   app.get("/parceiro/:id", async(req, res) => {
     try {
       const id = req.params.id; 
@@ -631,24 +652,16 @@ app.post("/loginParceiro", async (req, res)  => {
   });
 
 
+  app.get("/oleos", async(req, res) => {
+    try {
+      const oleos = await Oleo.findAll();
+      return res.status(200).json(oleos);
+    } catch (error) {
+      return res.status(400).json({ message: "Falha ao listar oleos" });
+    }
+  });
+  
 
-  
-  // app.delete("/parceiros/:id", async (req, res) => {
-  //   const parceiroId = req.params.id;
-  
-  //   try {
-  //     const parceiro = await Parceiro.findByPk(parceiroId);
-  
-  //     if (!parceiro) {
-  //       return res.status(404).json({ message: "Parceiro não encontrado" });
-  //     }
-
-  //     await parceiro.destroy();
-  //     return res.status(200).json({ message: "Parceiro removido com sucesso" });
-  //   } catch (error) {
-  //     return res.status(400).json({ message: "Falha ao remover o parceiro" });
-  //   }
-  // });
 
 
 

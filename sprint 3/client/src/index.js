@@ -23,12 +23,14 @@ import ProdutoC from './Pages/Comum/produtos';
 import ProdutoE from './Pages/Parceiro/produtos';
 import Gestao from './Pages/Administrador/gestao';
 import Creditos from './Pages/Administrador/creditos';
+import Dashboard from './Pages/Administrador/dashboard';
 import Pedidos from './Pages/Administrador/pedidos'
 import ComprarCreditos from './Pages/Parceiro/comprarCreditos';
 import Compras from './Pages/Parceiro/compras';
 import ConfirmaEmail from './Pages/confirmaEmail'
 import ConfirmaParceiro from './Pages/confirmaParceiro'
 import HistoricoCredito from './Pages/Parceiro/historicoCredito'
+
 const rootElement = document.getElementById('root');
 
 ReactDOM.render(
@@ -62,6 +64,7 @@ ReactDOM.render(
         <Route path="/confirmaParceiro" element={ < ConfirmaParceiro />} />
         <Route path="/ComprarCredito" element={<ComprarCreditos />} />
         <Route path="/HistoricoCredito" element={<HistoricoCredito />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     <Footer />
     </Router>

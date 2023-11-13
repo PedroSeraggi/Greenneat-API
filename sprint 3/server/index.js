@@ -3,13 +3,15 @@ const app = express();
 const mysql = require("mysql2");
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
-const { Estabelecimento, Parceiro, Coleta, Compra, Credito,Oleo,Administrador, sequelize } = require("./db/db");
+const { Estabelecimento, Parceiro, Coleta, Oleo , Compra, Credito, sequelize } = require("./db/db");
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, './.env') });
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+
+
 
 // Use cookie-parser middleware
 app.use(cookieParser());
@@ -209,7 +211,19 @@ app.post("/registerParceiro", async (req, res) => {
 
 
 
-
+app.get("/historicoCompras", async (req, res) => {
+  try {
+    const estabelecimentoId = req.query.estabelecimentoId;  // Correção: alterado para req.query.estabelecimentoId
+    const compras = await Compra.findAll({
+      where: {
+        EstabelecimentoId: estabelecimentoId  // Correção: alterado para EstabelecimentoId
+      }
+    });
+    return res.status(200).json(compras);
+  } catch (error) {
+    return res.status(400).json({ message: "Falha ao listar as compras" });
+  }
+});
 
 //Login do Estabelecimento
 app.post("/loginEstabelecimento", async (req, res)  => {
@@ -273,65 +287,126 @@ app.post("/loginParceiro", async (req, res)  => {
 });
 
 
+
+
+
   //Função para realizar as transações do óleo/crédito entre o parceiro e estabelecimento
-   app.post("/realizarColeta", async (req, res) => {
-     try {
-       const quantidadeDeOleo = req.body.quantidadeDeOleo;
-       const nomeEstabelecimento = req.body.nomeEstabelecimento;
-       const nomeParceiro = req.body.nomeParceiro;
-       const tipoOleo = req.body.tipoOleo
-       const estabelecimento = await Estabelecimento.findOne({ where: { nomeOrganizacao: nomeEstabelecimento } });
+  // app.post("/realizarColeta", async (req, res) => {
+  //   try {
+  //     const quantidadeDeOleo = req.body.quantidadeDeOleo;
+  //     const nomeEstabelecimento = req.body.nomeEstabelecimento;
+  //     const nomeParceiro = req.body.nomeParceiro;
+  //     const tipoOleo = req.body.tipoOleo
+  //     const estabelecimento = await Estabelecimento.findOne({ where: { nomeOrganizacao: nomeEstabelecimento } });
   
-       if (!estabelecimento) {
-         console.log('Estabelecimento não encontrado');
-         return res.status(404).json({ error: 'Estabelecimento não encontrado' });
-       }
+  //     if (!estabelecimento) {
+  //       console.log('Estabelecimento não encontrado');
+  //       return res.status(404).json({ error: 'Estabelecimento não encontrado' });
+  //     }
 
-       const idEstabelecimento = estabelecimento.id
+  //     const idEstabelecimento = estabelecimento.id
   
-       const parceiro = await Parceiro.findOne({ where: { nomeOrganizacao: nomeParceiro } });
+  //     const parceiro = await Parceiro.findOne({ where: { nomeOrganizacao: nomeParceiro } });
 
-       if (!parceiro) {
-         console.log('Parceiro não encontrado');
-         return res.status(404).json({ error: 'Parceiro não encontrado' });
-       }
+  //     if (!parceiro) {
+  //       console.log('Parceiro não encontrado');
+  //       return res.status(404).json({ error: 'Parceiro não encontrado' });
+  //     }
 
-       const idParceiro = parceiro.id
+  //     const idParceiro = parceiro.id
 
-       const oleo = await Oleo.findOne({ where: { tipo: tipoOleo } }); 
+  //     const oleo = await Oleo.findOne({ where: { tipo: tipoOleo } }); 
+  //     console.log(oleo)
   
-       const credito = quantidadeDeOleo * oleo.preco;
+  //     const credito = quantidadeDeOleo * oleo.preco;
   
-       if (parceiro.credito >= credito) {
-       parceiro.credito -= credito;
-         await parceiro.save();
+  //     if (parceiro.credito >= credito) {
+  //       parceiro.credito -= credito;
+  //       await parceiro.save();
   
-         estabelecimento.credito += credito;
-         await estabelecimento.save();
+  //       estabelecimento.credito += credito;
+  //       await estabelecimento.save();
   
-         novaColeta = new Coleta({
-           quantidade: quantidadeDeOleo,
-           credito: credito, // Adiciona a quantidade de crédito recebido na tabela de coleta
-           EstabelecimentoId: idEstabelecimento,
-           tipo:oleo.tipo,
-           ParceiroId: idParceiro,
-         });
+  //       novaColeta = new Coleta({
+  //         quantidade: quantidadeDeOleo,
+  //         credito: credito, // Adiciona a quantidade de crédito recebido na tabela de coleta
+  //         EstabelecimentoId: idEstabelecimento,
+  //         tipo:oleo.tipo,
+  //         ParceiroId: idParceiro,
+  //       });
   
-         const coleta = await novaColeta.save();
-         res.status(200).json(coleta);
-       } else {
-         console.log('Créditos insuficientes');
-         return res.status(400).json({ error: 'Créditos insuficientes' });
-       }
-     } catch (erro) {
-       console.log(erro);
-       res.status(500).json({ error: 'Erro interno do servidor' });
-     }
-   });
+  //       const coleta = await novaColeta.save();
+  //       res.status(200).json(coleta);
+  //     } else {
+  //       console.log('Créditos insuficientes');
+  //       return res.status(400).json({ error: 'Créditos insuficientes' });
+  //     }
+  //   } catch (erro) {
+  //     console.log(erro);
+  //     res.status(500).json({ error: 'Erro interno do servidor' });
+  //   }
+  // });
+  
+ 
+  // A FUNÇÃO ANTERIOR ESTA DANDO PROBLEMAS PORQUE NÃO TEM COMO SELECIONAR O TIPO DO OLEO NO FRONT OQUE CAUSA ERROS
+  
+  app.post("/realizarColeta", async (req, res) => {
+    try {
+      const quantidadeDeOleo = req.body.quantidadeDeOleo;
+      const nomeEstabelecimento = req.body.nomeEstabelecimento;
+      const tipoOleo = req.body.tipoOleo
+      const estabelecimento = await Estabelecimento.findOne({ where: { nomeOrganizacao: nomeEstabelecimento } });
+  
+      if (!estabelecimento) {
+        console.log('Estabelecimento não encontrado');
+        return res.status(404).json({ error: 'Estabelecimento não encontrado' });
+      }
+  
+      const parceiro = await Parceiro.findOne({ where: { id: req.body.ParceiroId } });
+  
+      if (!parceiro) {
+        console.log('Parceiro não encontrado');
+        return res.status(404).json({ error: 'Parceiro não encontrado' });
+      }
+  
+      const oleo = await Oleo.findOne({ where: { tipo: tipoOleo } }); 
+  
+      const credito = quantidadeDeOleo * oleo.preco;
+ 
+      if (parceiro.credito >= credito) {
+        parceiro.credito -= credito;
+        await parceiro.save();
+  
+        estabelecimento.credito += credito;
+        await estabelecimento.save();
+  
+        novaColeta = new Coleta({
+          quantidade: quantidadeDeOleo,
+          credito: credito, // Adiciona a quantidade de crédito recebido na tabela de coleta
+          EstabelecimentoId: estabelecimento.id,
+          ParceiroId: req.body.ParceiroId,
+          tipo:tipoOleo,
+        });
+  
+        const coleta = await novaColeta.save();
+        res.status(200).json(coleta);
+      } else {
+        console.log('Créditos insuficientes');
+        return res.status(400).json({ error: 'Créditos insuficientes' });
+      }
+    } catch (erro) {
+      console.log(erro);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  });
+  
+  
+  
   
  
 
-  
+
+
   app.get("/perfil/:email", async (req, res) => {
     try {
       const email = req.params.email;
@@ -857,6 +932,31 @@ app.post("/definirPreco", async (req, res) => {
     res.send(erro);
   }
 });
+
+app.post("/definirPreco", async (req, res) => {
+  try {
+    const { preco, tipo } = req.body;
+    const oleoTipoExistente = await Oleo.findOne({ where: { tipo: tipo} });
+
+    if(oleoTipoExistente){
+      oleoTipoExistente.preco = preco;
+      await oleoTipoExistente.save()
+    }
+
+    if(!oleoTipoExistente){
+      const novoOleo = new Oleo({
+        tipo: tipo,
+        preco: preco,
+      });
+      const oleo = await novoOleo.save();
+      console.log(oleo)
+      res.status(200).json(oleo);
+    }
+  } catch (erro) {
+    res.send(erro);
+  }
+});
+
 
 
 

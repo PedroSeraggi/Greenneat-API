@@ -27,10 +27,10 @@ function Pedidos() {
     return (
         <>
         
-            <div className="container">
+            <div >
                 <ul>
-                    {usuarios.map((usuario, index) => (
-                        <p> COMPRA - {usuario}</p>
+                    {usuarios.map((usuario) => (
+                        <p><b> COMPRA - </b>{usuario}</p>
                     ))}
                 </ul>
             </div>

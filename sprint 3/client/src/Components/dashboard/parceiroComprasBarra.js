@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Pie } from 'react-chartjs-2'; // Modificado para Pie
+import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 
-const ParceirosDashboard = () => {
+const ParceirosDashboardBarra = () => {
   const [parceirosData, setParceirosData] = useState(null);
 
   useEffect(() => {
@@ -20,25 +20,36 @@ const ParceirosDashboard = () => {
     labels: parceirosData ? parceirosData.map(parceiro => parceiro.nomeOrganizacao) : [],
     datasets: [
       {
+        label: 'Quantidade de Compras',
         data: parceirosData ? parceirosData.map(parceiro => parceiro.compras) : [],
         backgroundColor: [
-  
-          '#00BF63',  
-          '#90EE90',  
-          '#32CD32',  
-          '#7ED957',  
-          '#87BC87',  
-          '#CIFF72', 
+          '#00BF63',
+          '#90EE90',
+          '#32CD32',
+          '#7ED957',
+          '#87BC87',
+          '#CIFF72',
         ],
       },
     ],
   };
 
+  const options = {
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <>
-    <Pie data={chartData} /> 
+      <Bar data={chartData} options={options} />
     </>
   );
 };
 
-export default ParceirosDashboard;
+export default ParceirosDashboardBarra;

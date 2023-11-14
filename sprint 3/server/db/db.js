@@ -41,6 +41,7 @@ const Parceiro = sequelize.define('Parceiro', {
   credito:Sequelize.FLOAT,
   senha: Sequelize.STRING,
   compras:Sequelize.FLOAT,
+  litrosColetados:Sequelize.FLOAT,
   token: {
     type: Sequelize.STRING,
     allowNull: true
@@ -77,6 +78,7 @@ const Credito = sequelize.define('Credito', {
   credito: Sequelize.FLOAT,
   valor: Sequelize.FLOAT,
 });
+Credito.belongsTo(Parceiro, { foreignKey: 'ParceiroId' });
 
 
 // Definição do modelo da tabela "óleos"
@@ -105,7 +107,6 @@ const Compra = sequelize.define('Compra', {
 });
 
 Parceiro.hasMany(Credito);
-Credito.belongsTo(Parceiro);
 Estabelecimento.hasMany(Coleta);
 Parceiro.hasMany(Coleta);
 Coleta.belongsTo(Estabelecimento);

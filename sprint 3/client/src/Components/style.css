@@ -479,24 +479,30 @@ header {
   width: 80%;
   height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
-  
+  margin-top: 5%;
+  gap: 20px;
+
 }
 
 .sectionDashboard1{
   width: 30%;
   align-items: center;
+  
 }
 
 .sectionDashboard2{
-  width: 50%;
+  width: 40%;
   display: flex;
   align-items: center;
   flex-direction: column;
 }
 
+.sectionDashboard3{
+  width: 30%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
 
 .OleosContainer{
   width: 400px;
@@ -507,9 +513,99 @@ header {
   background-color: white;
   border-radius: 15px;
   align-items: center;
-  justify-content: center;
-  margin-top: 30px;
+  justify-content: space-around;
+  
+
 }
+
+.PedidosContainer{
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  background-color: white;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+
+.TransacoesContainer{
+  width: 600px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 215px;
+  background-color: white;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: space-around;
+  
+}
+
+.ComparadorContainer{
+  width: 600px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  background-color: white;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+
+.GraficoContainer{
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+/*----- DASHBOARD -----*/
+
+.graficos{
+  width: 80%;
+  height: 80%;
+  margin-top: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+
+.DashboardContainer{
+  width: 450px;
+ text-align: center;
+  border-radius: 15px;
+ 
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .containerProduto {
@@ -995,9 +1091,19 @@ tr:hover {
   animation: fadeIn 1s;
 }
 
+.pedidosTable{
+background-color: rgba(255, 255, 255, 0.836);
+}
 
-
-
+.pedidosTable th{
+  background-color: #00BF63;
+  }
+  
+.containerTotal{
+  width: 100%;
+  text-align: center;
+  margin-top: 2%;
+}
 
 
 @media (max-width: 730px) {
@@ -1322,12 +1428,11 @@ tr:hover {
   border-radius: 4px;
 }
 
-/* Style the wrapper */
+
 .inputWrapper {
   margin: 10px;
 }
 
-/* Style the select element */
 .form-field {
   width: 50%;
   padding: 8px;
@@ -1341,14 +1446,12 @@ tr:hover {
   color: black;
 }
 
-/* Style the options */
+
 .form-field option {
   font-size: 16px;
   padding: 8px;
   background-color: white;
-  /* Change this as needed */
   color: black;
-  /* Change this as needed */
 }
 
 #botaoDefinirPreco {
@@ -1384,18 +1487,14 @@ tr:hover {
 
 #OleoButton {
   background-color: #138842;
-  width: 35%;
+  width: 125px;
   font-size: 15px;
   height: 40px;
-  margin-left: 55%;
-  display: flex;
+
   border: none;
   border-radius: 8px;
-  text-align: center;
   color: white;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   margin-top: 5px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }

@@ -42,8 +42,8 @@ function HistoricoComprasADM() {
     return (
         <>
             <NavbarP activeLink="/" />
-
-            <table>
+           <div className='containerTotal'> <h2>VALOR TOTAL DE VENDAS: R${totalGanho.toFixed(2)}</h2></div>
+            <table className='pedidosTable'>
                 <thead>
                     <tr>
 
@@ -90,7 +90,7 @@ function HistoricoComprasADM() {
                         Próximo
                     </button>
                 </div>
-                <h3>Total ganho: ${totalGanho.toFixed(2)}</h3>
+                
             </div>
             <div>
                 <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 0}>

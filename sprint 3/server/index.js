@@ -76,6 +76,10 @@ app.post("/comprarCredito", async (req, res) => {
   
 
 
+ 
+
+
+
 app.post("/registerEstabelecimento", async (req, res) => {
   try {
     const { nomeOrganizacao, email, cnpj, endereco, cidade, horariosFuncionamento, possuiParceiros, senha } = req.body;
@@ -287,69 +291,6 @@ app.post("/loginParceiro", async (req, res)  => {
 });
 
 
-
-
-
-  //Função para realizar as transações do óleo/crédito entre o parceiro e estabelecimento
-  // app.post("/realizarColeta", async (req, res) => {
-  //   try {
-  //     const quantidadeDeOleo = req.body.quantidadeDeOleo;
-  //     const nomeEstabelecimento = req.body.nomeEstabelecimento;
-  //     const nomeParceiro = req.body.nomeParceiro;
-  //     const tipoOleo = req.body.tipoOleo
-  //     const estabelecimento = await Estabelecimento.findOne({ where: { nomeOrganizacao: nomeEstabelecimento } });
-  
-  //     if (!estabelecimento) {
-  //       console.log('Estabelecimento não encontrado');
-  //       return res.status(404).json({ error: 'Estabelecimento não encontrado' });
-  //     }
-
-  //     const idEstabelecimento = estabelecimento.id
-  
-  //     const parceiro = await Parceiro.findOne({ where: { nomeOrganizacao: nomeParceiro } });
-
-  //     if (!parceiro) {
-  //       console.log('Parceiro não encontrado');
-  //       return res.status(404).json({ error: 'Parceiro não encontrado' });
-  //     }
-
-  //     const idParceiro = parceiro.id
-
-  //     const oleo = await Oleo.findOne({ where: { tipo: tipoOleo } }); 
-  //     console.log(oleo)
-  
-  //     const credito = quantidadeDeOleo * oleo.preco;
-  
-  //     if (parceiro.credito >= credito) {
-  //       parceiro.credito -= credito;
-  //       await parceiro.save();
-  
-  //       estabelecimento.credito += credito;
-  //       await estabelecimento.save();
-  
-  //       novaColeta = new Coleta({
-  //         quantidade: quantidadeDeOleo,
-  //         credito: credito, // Adiciona a quantidade de crédito recebido na tabela de coleta
-  //         EstabelecimentoId: idEstabelecimento,
-  //         tipo:oleo.tipo,
-  //         ParceiroId: idParceiro,
-  //       });
-  
-  //       const coleta = await novaColeta.save();
-  //       res.status(200).json(coleta);
-  //     } else {
-  //       console.log('Créditos insuficientes');
-  //       return res.status(400).json({ error: 'Créditos insuficientes' });
-  //     }
-  //   } catch (erro) {
-  //     console.log(erro);
-  //     res.status(500).json({ error: 'Erro interno do servidor' });
-  //   }
-  // });
-  
- 
-  // A FUNÇÃO ANTERIOR ESTA DANDO PROBLEMAS PORQUE NÃO TEM COMO SELECIONAR O TIPO DO OLEO NO FRONT OQUE CAUSA ERROS
-  
   app.post("/realizarColeta", async (req, res) => {
     try {
       const quantidadeDeOleo = req.body.quantidadeDeOleo;
@@ -372,7 +313,10 @@ app.post("/loginParceiro", async (req, res)  => {
       const oleo = await Oleo.findOne({ where: { tipo: tipoOleo } }); 
   
       const credito = quantidadeDeOleo * oleo.preco;
- 
+     
+      parceiro.litrosColetados += quantidadeDeOleo;
+      await parceiro.save();
+
       if (parceiro.credito >= credito) {
         parceiro.credito -= credito;
         await parceiro.save();
@@ -382,7 +326,7 @@ app.post("/loginParceiro", async (req, res)  => {
   
         novaColeta = new Coleta({
           quantidade: quantidadeDeOleo,
-          credito: credito, // Adiciona a quantidade de crédito recebido na tabela de coleta
+          credito: credito, 
           EstabelecimentoId: estabelecimento.id,
           ParceiroId: req.body.ParceiroId,
           tipo:tipoOleo,
@@ -427,8 +371,8 @@ app.post("/loginParceiro", async (req, res)  => {
   });
 
 
-  //Histórico do parceiro
-  app.get("/historicoParceiro", async (req, res) => {
+   //Histórico do parceiro
+   app.get("/historicoParceiro", async (req, res) => {
     try {
       const parceiroId = req.query.parceiroId;
       const coletas = await Coleta.findAll({
@@ -544,43 +488,8 @@ app.post("/loginParceiro", async (req, res)  => {
 
 
   
-  app.post("/realizarCompra", async (req, res) => {
-    try {
-        const { produtos, total, EstabelecimentoId, tipo } = req.body;
-
-        await sequelize.transaction(async (t) => {
-            const estabelecimento = await Estabelecimento.findOne({ where: { id: EstabelecimentoId } });
-
-            if (!estabelecimento) {
-                return res.status(404).json({ error: 'Estabelecimento não encontrado' });
-            }
-
-            if (total > estabelecimento.credito) {
-                return res.status(400).json({ error: 'Saldo insuficiente' });
-            }
-
-            estabelecimento.credito -= total;
-            estabelecimento.compras += 1; // Incrementa o número de compras
-            await estabelecimento.save({ transaction: t });
-
-            // Crie a nova compra no banco de dados
-            const novaCompra = await Compra.create(
-                {
-                    produtos,
-                    total,
-                    EstabelecimentoId,
-                    tipo,
-                },
-                { transaction: t }
-            );
-
-            res.status(200).json(novaCompra);
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
+  
+  
 
 
 
@@ -597,27 +506,80 @@ app.post("/loginParceiro", async (req, res)  => {
   });
 
 
-  app.get("/parceirosGrafico", async(req, res) => {
+  app.get("/parceirosGrafico", async (req, res) => {
     try {
-      const parceiros = await Parceiro.findAll({
-      });
+      const parceiros = await Parceiro.findAll({});
   
-      const parceirosCompras = await Promise.all(parceiros.map(async (parceiro) => {
-        const totalCompras = await Compra.count({ where: { EstabelecimentoId: parceiro.id } });
-        return {
-          ...parceiro.toJSON(),
-          compras: totalCompras,
-        };
-      }));
+      const parceirosComCompras = await Promise.all(
+        parceiros.map(async (parceiro) => {
+          const totalCompras = await Compra.count({
+            where: { EstabelecimentoId: parceiro.id },
+          });
+          return {
+            ...parceiro.toJSON(),
+            
+          };
+        })
+      );
+
+      const parceirosFiltrados = parceirosComCompras.filter(
+        (parceiro) => parceiro.compras > 0
+      );
   
-      return res.status(200).json(parceirosCompras);
+      return res.status(200).json(parceirosFiltrados);
     } catch (error) {
-      console.error('Erro ao obter dados dos parceiros:', error);
+      console.error("Erro ao obter dados dos parceiros:", error);
       return res.status(500).json({ message: "Falha ao listar parceiros" });
     }
   });
   
+
+  app.get("/estabelecimentosParceirosGrafico", async (req, res) => {
+    try {
+      
+      const totalParceiros = await Parceiro.count();
+      
+
+      const totalEstabelecimentos = await Estabelecimento.count();
+
+      
+      res.json({
+        parceiros: totalParceiros,
+        estabelecimentos: totalEstabelecimentos,
+      });
+      
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Erro ao obter dados para o gráfico");
+    }
+  });
   
+  app.get("/coletasPorMes", async (req, res) => {
+    try {
+      const coletasPorMes = await Coleta.findAll({
+        attributes: [
+          [
+            sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'),
+            'anoMes',
+          ],
+          [sequelize.fn('SUM', sequelize.col('quantidade')), 'totalQuantidade'],
+        ],
+        group: [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m')],
+      });
+  
+      console.log(coletasPorMes); // Adicione esta linha para verificar os dados
+  
+      res.status(200).json(coletasPorMes);
+    } catch (error) {
+      console.error("Erro ao obter dados das coletas por mês:", error);
+      res.status(500).json({ message: "Falha ao obter dados das coletas por mês" });
+    }
+  });
+  
+  
+  
+
+
   app.get("/parceiro/:id", async(req, res) => {
     try {
       const id = req.params.id; 
@@ -764,7 +726,7 @@ app.post("/loginParceiro", async (req, res)  => {
   app.get("/historicoComprasADM", async (req, res) => {
     try {
         const compras = await Compra.findAll({
-            // Seus outros filtros ou consultas aqui
+            
         });
 
         // Mapeia as compras para adicionar o nome da organização
@@ -793,7 +755,62 @@ app.post("/loginParceiro", async (req, res)  => {
     }
 });
 
+app.get("/notificacaoCredito", async (req, res) => {
+  try {
+      const creditos = await Credito.findAll();
 
+      const transacoesData = await Promise.all(
+          creditos.map(async (credito) => {
+              let nomeOrganizacao = '';
+              const parceiro = await Parceiro.findByPk(credito.ParceiroId);
+              nomeOrganizacao = parceiro ? parceiro.nomeOrganizacao : 'N/A';
+
+              return {
+                  id: credito.id,
+                  nomeOrganizacao,
+                  valor: credito.valor, // Adicione a informação do valor
+                  data: credito.createdAt, // Adicione a informação da data (assumindo que há uma propriedade createdAt no modelo)
+              };
+          })
+      );
+
+    
+      // Mostra apenas as últimas 5 transações
+      const ultimasTransacoes = transacoesData.slice(0, 5);
+
+      // Envia a resposta para o cliente após o processamento bem-sucedido
+      return res.status(200).json(ultimasTransacoes);
+  } catch (error) {
+      return res.status(400).json({ message: "Falha ao listar os creditos" });
+  }
+});
+
+
+
+app.get("/TodosasComprasCredito", async (req, res) => {
+  try {
+      const creditos = await Credito.findAll();
+
+      const transacoesData = await Promise.all(
+          creditos.map(async (credito) => {
+              let nomeOrganizacao = '';
+              const parceiro = await Parceiro.findByPk(credito.ParceiroId);
+              nomeOrganizacao = parceiro ? parceiro.nomeOrganizacao : 'N/A';
+
+              return {
+                  id: credito.id,
+                  nomeOrganizacao,
+                  valor: credito.valor, // Adicione a informação do valor
+                  data: credito.createdAt, // Adicione a informação da data (assumindo que há uma propriedade createdAt no modelo)
+              };
+          })
+      );
+
+      return res.status(200).json(transacoesData);
+  } catch (error) {
+      return res.status(400).json({ message: "Falha ao listar os creditos" });
+  }
+});
 
   
   

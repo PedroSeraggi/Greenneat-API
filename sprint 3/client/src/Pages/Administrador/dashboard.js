@@ -1,54 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Navbar from '../../Components/navbar/navbarAdministrador';
-import Grafico from '../../Components/dashboard/parceiroCompras';
-import OleoContainer from '../../Components/oleoContainer';
-import Pedidos from '../../Components/pedidoNotificação';
-import axios from 'axios';
+import Cadastrados from '../../Components/dashboard/cadastrados';
+import Grafico from '../../Components/dashboard/parceiroComprasBarra';
+import OleoColetado from '../../Components/dashboard/oleoColetado';
+import ColetaporMes from '../../Components/dashboard/ColetaporMes';
 
 function Dashboard() {
-  const [oleos, setOleos] = useState([]);
-  const options = {
-    maintainAspectRatio: false,
-    responsive: true,
-  };
 
-  useEffect(() => {
-    const fetchOleos = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/oleos`);
-        setOleos(response.data); // Axios já faz o parse do JSON, então não é necessário chamar response.json()
-      } catch (error) {
-        console.error('Erro ao buscar dados dos óleos:', error);
-      }
+    const options = {
+        maintainAspectRatio: false,
+        responsive: true,
     };
 
-    fetchOleos();
-  }, []);
 
-  return (
-    <>
-      <Navbar activeLink="/dashboard" />
-      <body>
-        <div className='containerDashboard'>
-          <div className='sectionDashboard1'>
-            <Grafico options={options} />
-          </div>
+    return (
+        <>
+            <Navbar activeLink="/dashboard" />
+            <body>
+                <div className='containerLogin'>
+                    <h1>Dados gerais</h1>
+                    <div className='graficos'>
+                        <div className='DashboardContainer'>
+                            <h3>Quantidade de Parceiros/Estabelecimentos</h3>
+                            <Cadastrados options={options} />
+                        </div>
 
-          <div className='sectionDashboard2'>
-            <div className="OleosContainer">
-              <h2>Informações sobre Óleos</h2>
-              <OleoContainer oleos={oleos} />
-              <button  id="OleoButton" >Mudar Valor</button>
-            </div>
-            <div className="OleosContainer">
-              <Pedidos />
-              <button  id="OleoButton" >Mudar Valor</button>
-            </div>
-          </div>
-        </div>
-      </body>
-    </>
-  );
+                        <div className='DashboardContainer'>
+                            <h3>Parceiros que mais coletaram óleo(L)</h3>
+                            <OleoColetado options={options} />
+                        </div>
+                    </div>
+
+                    <div className='graficos'>
+                        <div className='DashboardContainer'>
+                            <h3>Parceiros que mais fizeram compras</h3>
+                            <Grafico options={options} />
+                        </div>
+                        <div className='DashboardContainer'>
+                            <h3>Óleo coletado por mês(L)</h3>
+                            <ColetaporMes options={options} />
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </>
+    );
 }
 
 export default Dashboard;

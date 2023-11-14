@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2'; // Mudança para Bar
 import axios from 'axios';
 
 const OleoColetado = () => {
@@ -13,7 +13,7 @@ const OleoColetado = () => {
       })
       .catch(error => {
         console.error('Erro ao obter dados dos parceiros:', error);
-        setParceirosData([]); // Defina para um array vazio em caso de erro para evitar problemas de renderização
+        setParceirosData([]);
       });
   }, []);
 
@@ -21,23 +21,42 @@ const OleoColetado = () => {
     labels: parceirosData.map(parceiro => parceiro.nomeOrganizacao),
     datasets: [
       {
+        label: 'Litros Coletados',
         data: parceirosData.map(parceiro => parceiro.litrosColetados),
         backgroundColor: [
-          '#00BF63',  
-          '#90EE90',  
-          '#32CD32',  
-          '#7ED957',  
-          '#87BC87',  
-          '#CIFF72', 
+          '#00BF63',
+          '#90EE90',
+          '#32CD32',
+          '#7ED957',
+          '#87BC87',
+          '#CIFF72',
         ],
       },
     ],
   };
 
+  const chartOptions = {
+    scales: {
+      x: { 
+        title: {
+          display: true,
+          text: 'Parceiros',
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Litros Coletados',
+        },
+      },
+    },
+  };
+
   return (
     <div>
       {parceirosData.length > 0 ? (
-        <Pie data={chartData} />
+        <Bar data={chartData} options={chartOptions} />
       ) : (
         <p>Nenhum dado disponível para exibição</p>
       )}

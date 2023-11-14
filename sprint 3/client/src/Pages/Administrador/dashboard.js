@@ -1,7 +1,8 @@
 import React from 'react';
 import Navbar from '../../Components/navbar/navbarAdministrador';
 import Cadastrados from '../../Components/dashboard/cadastrados';
-import Grafico from '../../Components/dashboard/parceiroComprasBarra';
+import Grafico from '../../Components/dashboard/parceiroCompras';
+import Estabelecimento from '../../Components/dashboard/estabelecimentoCompras';
 import OleoColetado from '../../Components/dashboard/oleoColetado';
 import ColetaporMes from '../../Components/dashboard/ColetaporMes';
 
@@ -25,21 +26,29 @@ function Dashboard() {
                             <Cadastrados options={options} />
                         </div>
 
-                        <div className='DashboardContainer'>
-                            <h3>Parceiros que mais coletaram óleo(L)</h3>
-                            <OleoColetado options={options} />
-                        </div>
-                    </div>
-
-                    <div className='graficos'>
+                    
                         <div className='DashboardContainer'>
                             <h3>Parceiros que mais fizeram compras</h3>
                             <Grafico options={options} />
                         </div>
                         <div className='DashboardContainer'>
+                            <h3>Estabelecimentos que mais fizeram compras</h3>
+                            <Estabelecimento options={options} />
+                        </div>
+                    </div>
+
+                    <div className='graficos'>
+                        <div className='DashboardContainer'>
+                            <h3>Parceiros que mais coletaram óleo(L)</h3>
+                            <OleoColetado options={options} />
+                        </div>
+                        <div className='DashboardContainer'>
                             <h3>Óleo coletado por mês(L)</h3>
                             <ColetaporMes options={options} />
                         </div>
+                    </div>
+                    <div className='graficos'>
+                    
                     </div>
                 </div>
             </body>

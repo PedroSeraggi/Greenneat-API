@@ -504,6 +504,33 @@ app.post("/loginParceiro", async (req, res)  => {
       return res.status(400).json({ message: "Falha ao listar parceiros" });
     }
   });
+  
+  app.get("/estabelecimentosGrafico", async (req, res) => {
+    try {
+      const estabelecimentos = await Estabelecimento.findAll({});
+  
+      const estabelecimentosComCompras = await Promise.all(
+        estabelecimentos.map(async (estabelecimento) => {
+          const totalCompras = await Compra.count({
+            where: { EstabelecimentoId: estabelecimento.id },
+          });
+          return {
+            ...estabelecimento.toJSON(),
+            compras: totalCompras,
+          };
+        })
+      );
+
+      const estabelecimentosFiltrados = estabelecimentosComCompras.filter(
+        (estabelecimento) => estabelecimento.compras > 0
+      );
+  
+      return res.status(200).json(estabelecimentosFiltrados);
+    } catch (error) {
+      console.error("Erro ao obter dados dos estabelecimentos:", error);
+      return res.status(500).json({ message: "Falha ao listar estabelecimentos" });
+    }
+  });
 
 
   app.get("/parceirosGrafico", async (req, res) => {
